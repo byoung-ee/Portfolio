@@ -31,7 +31,8 @@ The red trace shows current through R18 into a 2x47uF input bank during startup.
 
 The "hard" linear current limit and "soft" switching current limit are both user adjustable through potentiometers on the finished board:
 <img width="798" height="469" alt="image" src="https://github.com/user-attachments/assets/cdddf9c0-8353-4b8a-a1fe-a5554163d04f" />
-This allows for difference in voltage drop through the summing diodes and op-amp differences to be accounted for experimentally.
+
+This allows for differences in voltage drop through the summing diodes and op-amp differences to be accounted for experimentally.
 
 The MCU chosen was the ESP32C3. In hindsight, this was a poor decision as the BLE power consumption is diminished by sharing circuitry with WIFI. During transmission this can spike to >300 mA at 3.3v, and even in the lowest power, connection maintaining, state still uses ~20 mA on average. This stresses the power budget at best and causes intermittent brownouts when transmissions are not optimized. Eg. to even establish a BLE connection the buffering capacitance needed to be doubled to 11.4 mF. The in-progress version 3 uses a NRF54 series MCU, with less than a tenth of the power consumption, at 1v8.
 
