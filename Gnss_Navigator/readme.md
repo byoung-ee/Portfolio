@@ -9,9 +9,9 @@ This data can be extracted and formatted into a more compressed, embedded render
 
 It was necessary to be able to view the extracted binary files to determine the level of simplification that could be tolerated on embedded-type displays. This was accomplished using a vibe-coded web app.
 This was beneficial as it allowed the rendering on embedded type displays to be previewed. IE. in TFT RGB or 2 bit grayscale as supported by some B/W epaper displays. Additionally, it displayed the total map binary loaded size to determine MCU resource usage.
-![Auckland_Full_detail](Images/deep_cove.png)
+![Auckland_Full_detail](Images/auckland.png)
 Displaying all of Auckland CBD on a 256x256 display required loading 9 tiles with a total size of 213 KB. This roughly means that at the zoom level of 14 any map could be loaded into a high performance, low power, MCU SRAM, like a STM32U575. Because the maximum tile size at Auckland's very high detail level is ~40 KB, it also means that individual tiles could be loaded and rendered on commodity level MCUs. 
 ![Deep_Cove](Images/deep_cove.png)
 On the other side of the spectrum very sparse tiles still present the relevant details; like Deep Cove which displays the coverage of waterways and any roads present in the OSM dataset. This example only loads 1.6 KB total. 
-![grayscale_auckland](Images/deep_cove.png)
+![grayscale_auckland](Images/256x256_epd_4grayscale.png)
 Rendered in 4 grayscale the Auckland map is still usable, which suggests that a simple B/W EPD is sufficient for further developments.
