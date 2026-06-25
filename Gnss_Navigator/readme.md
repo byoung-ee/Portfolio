@@ -15,3 +15,25 @@ Displaying all of Auckland CBD on a 256x256 display required loading 9 tiles wit
 On the other side of the spectrum very sparse tiles still present the relevant details; like Deep Cove which displays the coverage of waterways and any roads present in the OSM dataset. This example only loads 1.6 KB total. 
 ![grayscale_auckland](Images/256x256_epd_4grayscale.png)
 Rendered in 4 grayscale the Auckland map is still usable, which suggests that a simple B/W EPD is sufficient for further developments.
+
+While it was tempting to immediately start designing hardware to implement this, it would have been difficult to implement the required GNSS receiver, EMMC, EPD, and high performance MCU on the first revision. Nonetheless, I still laid out a concept of what it could look like:
+
+![epd_concept](Images/epd_concept.png)
+
+I thought it would be more prudent to focus on 1 or 2 subsystems on a less complex design, giving an opportunity to debug the hardware of more complex subsystems like the GNSS receiver before moving to the compact design. I decided that the subsystems tested would be the GNSS receiver and accelerometer/magnetometer. As a unit these systems can provide bearing and position, which can still be used for interesting things even without map rendering. 
+
+The resulting prototype focused on validating the two highest-risk subsystems: the GNSS receiver and the accelerometer/magnetometer. Although this significantly reduced the functionality compared to the original concept, it provided a practical platform for developing and debugging the RF front end, antenna matching network, sensor interfaces, and embedded firmware before attempting a far more densely integrated design.
+
+It features an STM32C071RB MCU, an AT6558R GNSS receiver with a custom RF front end comprising an antenna matching network, LNA, and SAW filter, LSM6DS3 IMU, and MMC5633 magnetometer. Information can be displayed on a 20x20 GPIO-driven led matrix.
+
+![gnss_card](Images/min_gnss_card.png)
+
+Despite being a lower risk design there were still some flaws with this revision. Primarily it was designed for the STM32C071RBT6-GP variant, but was fitted with an STM32C071RBT6-N, which has a second set of VDD pins. This required the board to be reworked significantly:
+
+<img width="1413" height="1235" alt="image" src="https://github.com/user-attachments/assets/8c7285e1-5ce3-41b0-a3b3-730a992d93e2" />
+
+Basically the series resistors R7 and R6 were removed, and the MCU side pins of those 0402 footprints were jumpered to 3v3 and ground testpoints respectively, with a new 100nF decoupling capacitor between them. The led matrix side of the 0402 footprints were jumpered to reassigned button GPIOs through series resistors, restoring function. 
+
+<img width="693" height="459" alt="image" src="https://github.com/user-attachments/assets/87cb4bd8-e0a7-4067-9c88-ffbe5b9bd702" />
+
+Next most problematic was that the chip antenna keepout area was violated by the internal layer 1 ground plane, which was missed because I usually keep the ground planes hidden. 
