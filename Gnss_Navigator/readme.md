@@ -14,7 +14,7 @@ Displaying all of Auckland CBD on a 256x256 display required loading 9 tiles wit
 ![Deep_Cove](Images/deep_cove.png)
 On the other side of the spectrum very sparse tiles still present the relevant details; like Deep Cove which displays the coverage of waterways and any roads present in the OSM dataset. This example only loads 1.6 KB total. 
 ![grayscale_auckland](Images/256x256_epd_4grayscale.png)
-Rendered in 4 grayscale the Auckland map is still usable, which suggests that a simple B/W EPD is sufficient for further developments.
+Rendered in 4 grayscale the Auckland map is still usable, which suggests that a simple B/W EPD is sufficient for further developments. Storing all of Oceania at this level of simplification requires only 106 MB down from 1.3 GB, indicating that simple commodity SPI flash could store a significant area of map. 
 
 While it was tempting to immediately start designing hardware to implement this, it would have been difficult to implement the required GNSS receiver, EMMC, EPD, and high performance MCU on the first revision. Nonetheless, I still laid out a concept of what it could look like:
 
@@ -24,7 +24,7 @@ I thought it would be more prudent to focus on 1 or 2 subsystems on a less compl
 
 The resulting prototype focused on validating the two highest-risk subsystems: the GNSS receiver and the accelerometer/magnetometer. Although this significantly reduced the functionality compared to the original concept, it provided a practical platform for developing and debugging the RF front end, antenna matching network, sensor interfaces, and embedded firmware before attempting a far more densely integrated design.
 
-It features an STM32C071RB MCU, an AT6558R GNSS receiver with a custom RF front end comprising an antenna matching network, LNA, and SAW filter, LSM6DS3 IMU, and MMC5633 magnetometer. Information can be displayed on a 20x20 GPIO-driven led matrix.
+It features an STM32C071RB MCU, an AT6558R GNSS receiver with a custom RF front end comprising an antenna matching network, LNA, and SAW filter, LSM6DS3 IMU, and MMC5603 magnetometer. Information can be displayed on a 20x20 GPIO-driven led matrix.
 
 ![gnss_card](Images/min_gnss_card.png)
 
@@ -39,7 +39,7 @@ Basically the series resistors R7 and R6 were removed, and the MCU side pins of 
 
 https://github.com/user-attachments/assets/14781895-5877-41f6-9fe3-2d7c14a21f9f
 
-
+As the matrix must be continuously scanned you can see rows visibly flickering, likely due to interrupt servicing for the USB CDC process required to load sequences onto the flash. This could be solved by using an RTOS or similar, or getting rid of the matrix altogether. A more refined row scanning procedure could be to use timer triggered DMA to automatically write to the GPIO registers, but this wasn't possible on this board because the row GPIO were spread across 3 GPIO banks. 
 
 Next most problematic was that the chip antenna keepout area was violated by the internal layer 1 ground plane, which was missed because I usually keep the ground planes hidden. 
 
@@ -49,3 +49,12 @@ In the revision 2 version this was fixed, and a optional UFL connector was added
 
 <img width="930" height="832" alt="antenna_rev1_rev2" src="https://github.com/user-attachments/assets/1e1a4e4b-0baa-4c75-ba59-7668e2f56783" />
 
+Next I worked on testing the mmc5603 magnetometer/LSM6 IMU. The magnetometer hard/soft iron offsets and correction matrices were determined by collecting raw magnetometer values as USB CDC ACM packets to a host PC, while the board was rotated through various orientations. These values were plotted live into a cloud to give feedback on captured orientations. Once the magnetometer sphere was sufficiently populated, ellipsoids describing the correction matrices were fit, and offsets determined using a python script. 
+<img width="1001" height="971" alt="image" src="https://github.com/user-attachments/assets/bc378541-a4a6-4598-baeb-1599cbbd9013" />
+<img width="925" height="393" alt="image" src="https://github.com/user-attachments/assets/5916b8b9-51c6-4408-888e-c85cc6210831" />
+
+This method largely worked but the corrected magnetometer output was still slightly malformed:
+
+
+
+Likely due to calibration around external hard iron sources (phone with big neodynium magnets etc). Although relatively isolated on the board the placement of the magnetometer could be improved in future revisions. The performance is still sufficient for rough heading in its current implementation, however.
