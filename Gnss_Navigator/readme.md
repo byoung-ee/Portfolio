@@ -28,12 +28,24 @@ It features an STM32C071RB MCU, an AT6558R GNSS receiver with a custom RF front 
 
 ![gnss_card](Images/min_gnss_card.png)
 
-Despite being a lower risk design there were still some flaws with this revision. Primarily it was designed for the STM32C071RBT6-GP variant, but was fitted with an STM32C071RBT6-N, which has a second set of VDD pins. This required the board to be reworked significantly:
+Despite being a lower risk design there were still some flaws with this revision. Primarily it was designed for the STM32C071RBT6-GP variant, but was fitted with an STM32C071RBT6-N, which has a second set of VDD/GND pins. This required the board to be reworked significantly:
 
+<img width="517" height="539" alt="image" src="https://github.com/user-attachments/assets/1ca52ee3-ef86-4d0c-a9d2-429033ff9006" />
 <img width="1413" height="1235" alt="image" src="https://github.com/user-attachments/assets/8c7285e1-5ce3-41b0-a3b3-730a992d93e2" />
 
 Basically the series resistors R7 and R6 were removed, and the MCU side pins of those 0402 footprints were jumpered to 3v3 and ground testpoints respectively, with a new 100nF decoupling capacitor between them. The led matrix side of the 0402 footprints were jumpered to reassigned button GPIOs through series resistors, restoring function. 
 
-<img width="693" height="459" alt="image" src="https://github.com/user-attachments/assets/87cb4bd8-e0a7-4067-9c88-ffbe5b9bd702" />
+
+
+https://github.com/user-attachments/assets/14781895-5877-41f6-9fe3-2d7c14a21f9f
+
+
 
 Next most problematic was that the chip antenna keepout area was violated by the internal layer 1 ground plane, which was missed because I usually keep the ground planes hidden. 
+
+<img width="693" height="459" alt="image" src="https://github.com/user-attachments/assets/87cb4bd8-e0a7-4067-9c88-ffbe5b9bd702" />
+
+In the revision 2 version this was fixed, and a optional UFL connector was added. This connector can be selected through an 0402 jumper to either feed the LNA from an external antenna, characterize the chip antenna, or be bypassed entirely with minimal parasitics.
+
+<img width="930" height="832" alt="antenna_rev1_rev2" src="https://github.com/user-attachments/assets/1e1a4e4b-0baa-4c75-ba59-7668e2f56783" />
+
